@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>可拖动轮播图</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	</head>
+	<link rel="stylesheet" href="../css/css.css" />
+	<style>
+		.banner{overflow: hidden; background: #ffc; position: relative;}
+		.banner ul{ white-space: nowrap;font-size: 0;}
+		.banner .cell{display:inline-block; width: 100%; vertical-align: middle;font-size: 14px;}
+		.banner .cell img{ display: block; width: 100%;}
+		#nav{position:absolute; bottom:20px; left:0; right:0; margin:auto;text-align: center; font-size:0 ; }
+		#nav a{ display: inline-block; width: 8px; height: 8px;  margin-right: 8px; border-radius:50% ;background: #eee;}
+		#nav a.active{ background:#07BE50;}
+	</style>
+	<body>
+		<div class="banner" id="banner">
+			<ul >
+				<li class="cell"><a href="#">
+					<img src="../guaguaka/girl2.jpg" alt="1"/>
+				</a></li>
+				<li class="cell"><a>
+					<img src="../images/银联_03.jpg" alt="2"/>
+				</a></li>			
+			</ul>
+			<nav id="nav"></nav>
+		</div>
+			<button type='button' id="right">Right</button>
+			<button type='button' id="left">Left</button>
+			<button type='button' id="stop">stop</button>
+			<button type='button' id="start">start</button>
+			<footer>
+				<img src="../images/dice.png"/>
+			</footer>
+		<script src="//cdn.bootcss.com/zepto/1.1.6/zepto.min.js"></script><!--zepto-->
+		<!--<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script><!--jq-->
+		<script type="text/javascript" src="qiu.banner.min.js" ></script>
+		<script>
+		$(function(){
+			//生成标识
+			for(var i = 0; i < $('.cell').size();i++)
+			{
+				if(i ==0){
+					$('#nav').append('<a class=\'active\'></a>');
+				}else{
+					$('#nav').append('<a></a>');
+				}
+				
+			};
+			//轮转
+			function nav(i){
+				$('#nav a').eq(i).addClass('active').siblings('.active').removeClass('active');
+			}
+			var banner = new $.qiu_banner({fun:nav});
+			
+			$('#left').click(function(){
+				banner.swipe();
+			})
+			$('#right').click(function(){
+				banner.swipe('right');
+			})
+			$('#stop').click(function(){
+				banner.stop();
+			})
+			$('#start').click(function(){
+				banner.start();
+			})
+		//css：.banner{overflow:hidden}.banner ul{ white-space: nowrap;font-size: 0;}
+		/*obj:输入轮播图的选择器名'.banner'
+		*list:输入图片集的选择器名如'.banner>ul'
+		*cell:输入图片集的classname,如'cell'
+		*time:间隔时间,默认3s
+		*duration:滑动速度，默认200ms
+		*distence://当达到多少距离时触发，默认图片的一半宽
+		*loop：为true时循环播放，默认为true
+		*fun:返回一个当前目标的index,不受loop影响
+		* this.trigger(index)传人一个index,注意看设置成循环是会生成连个dom
+		*this.swipe(val)val为‘right时右滑动，其他为左
+		*this.stop()停止播放
+		*this.start(val)开始播放可以传人一个时间(s)
+		*/
+		//ie9以上版本
+		//支持jquery or zepto js框架,自适应窗口
+		//支持pc和webkit浏览器鼠标手势左右滑动事件
+		//支持无线循环滚动
+		//支持回调函数
+		})
+		</script>
+	</body>
+</html>
