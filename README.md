@@ -1,7 +1,10 @@
 # qiu.banner
-双端的轮播图片，支持窗口自适应，左右拖动，无限轮播/n
+双端的轮播图片，支持窗口自适应，左右拖动，无限轮播
+
+必须css
 css：.banner{overflow:hidden}.banner ul{ white-space: nowrap;font-size: 0;}
 
+参数：
 *obj:输入轮播图的选择器名'.banner'
 
 *list:输入图片集的选择器名如'.banner>ul'
