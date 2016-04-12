@@ -1,29 +1,27 @@
 /*
+ * 2016-04-12
  * form qiu
  * 手势轮播图
  */
 ;(function($){
 	$.jqz_banner = function(arr){
-		
-		var transitionend,
-			transform;
-		var onstart,
-			onmove,
-			onend,
+	
+		var obj = this,
+			trigger = [],
 			mobile = "ontouchend" in document?true:false;//是否支持touch事件
 		//对应动作
 		if(mobile){
-			onstart = "touchstart";
-			onmove = "touchmove";
-			onend = "touchend";	
+			trigger['start'] = "touchstart";
+			trigger['move']  = "touchmove";
+			trigger['end']  = "touchend";	
 		}else{
-			onstart = "mousedown";
-			onmove = "mousemove";
-			onend = "mouseup";	
+			trigger['start'] = "mousedown";
+			trigger['move'] = "mousemove";
+			trigger['end'] = "mouseup";	
 		}
 			
 		//transform 
-		function fn_transform(){
+		
 			var transforms = [
 				"-webkit-transform",
 				"transform",
@@ -46,25 +44,24 @@
 					transitionend = transitions[i];
 				}
 			}
-		};
-		fn_transform();
+
 		//获得对应的transition和transfom
 		
 		var init = {
 			obj:'.banner',
-			list:'.banner>ul',//图集
 			cell:"cell",//cell's class
 			loop:true,//循环
 			time:3000,//间隔时间
 			duration:200,//速度
 			distence:'',//触发距离
-			fun:function(){},
+			nav:'',//生成一个标识的对象
+			fun:function(){},//返回一个引索
 		};
 		//初始化
 		if (arr) $.extend(init,arr);
-		var $obj = $(init.obj),
-			$list = $obj.find(init.list),
-			$cell = $obj.find('.'+init.cell),			
+		var $obj = $(init.obj),			
+			$cell = $obj.find('.'+init.cell),//图片目标
+			$list = $cell.parent(),//获得图集
 			start_x = 0,
 			start_y = 0,
 			move_x = 0,
@@ -80,8 +77,6 @@
 		//error
 		if($obj.size()<1){
 			throw new Error("obj is no an object");
-		}else if(!$list){
-			throw new Error("list is no an object");
 		}else if(size == 0){
 			throw new Error("cell is no an classname");
 		}
@@ -111,48 +106,50 @@
 			gotocell(index);
 		}
 		//1,开始拖动
-		$obj[0].addEventListener(onstart,move_start,false);
+		$obj[0].addEventListener(trigger['start'],move_start,false);
 		function move_start(e){
-			start_x = positionX(e);
-			start_y = positionY(e)
+			start_x = position(e).x;
+			start_y = position(e).y;
+			move_x = 0;
 			old_move_x = 0;
 			if(init.time)clearTimeout(t);
 			transfun("transition-duration","0ms");			
 			 //是否支持touch
 			if (!mobile)e.preventDefault();
-			document.addEventListener(onmove,move_ing,false);
-			$obj[0].addEventListener(onend,move_end,false);
+			document.addEventListener(trigger['move'],move_ing,false);
+			$obj[0].addEventListener(trigger['end'],move_end,false);
 		}
 		//2，拖动中
 		function move_ing(e){
-				move_x = positionX(e) - start_x;
-				move_y = positionY(e) - start_y;
+				var xy = position(e);
+				move_x = xy.x - start_x;
+				move_y = xy.y - start_y;
 				//获得相对于上次的移动距离
 				translate +=(move_x-old_move_x);
 				$list.css(transform,"translate3d("+translate+"px,0,0)");
 				//进行超出计算,误差4
 				var top = $obj.offset().top;
-				if(positionX(e)<=4||positionX(e)>=$cell.width()-4||positionY(e)<top+4||positionY(e)>(top+$obj.height())-4){
+				if(xy.x<=4||xy.x>=$cell.width()-4||xy.y<top+4||xy.y>(top+$obj.height())-4){
 					move_end();
 					
 				};
 				//存储上次的位置
 				old_move_x = move_x;
 				//处理浏览器默认事件
-				if(move_x>10&&-10<move_y<10||move_x<10&&-10<move_y<10){
-					e.preventDefault();	
-					//解决pc的触发问题
-					if(!mobile)$list.on('click','a',clickfalse);
-				}else{
+				var mo_x = positive(move_x),
+					mo_y = positive(move_y);
+				if(mo_y>10&&mo_x<10){
 					//mobile 时
 					if(mobile)move_end(e);
+				}else{
+					e.preventDefault();	
+					//解决pc的触发问题
+					if(!mobile)$list.on('click','a',clickfalse);	
 				}			
 		}
 		//3，结束拖动
 		function move_end(e){
-			document.removeEventListener(onmove,move_ing,false);
-			$obj[0].removeEventListener(onend,move_end,false);
-				var mo = Math.max(move_x,(move_x*-1));
+				var mo = positive(move_x);
 				//判断的触发
 				if(mo>distence){
 				//判断方向
@@ -164,7 +161,8 @@
 					}		
 				}				
 				gotocell(index);
-				document.removeEventListener(onmove,move_ing,false);
+				$obj[0].removeEventListener(trigger['end'],move_end,false);
+				document.removeEventListener(trigger['move'],move_ing,false);
 		}
 		//pc取消a触发
 		function clickfalse(){
@@ -231,6 +229,7 @@
 			$cell.eq(no).addClass('active').siblings('.active').removeClass('active');
 			if(init.loop)no--;
 			if(init.fun)init.fun(no);
+			if(init.nav)shownav(no);
 		}
 		//浏览器判断 css style_name value[string]
 		function transfun(str,value){
@@ -243,29 +242,50 @@
 			}
 			return $list.css(trans,value);
 		}
-		//position page x
-		function positionX(e) {
-			var x = e.pageX;
+		//获得正数
+		function positive(num){
+			
+			return Math.max(num,(num*-1))
+		}
+		//position page x y
+		function position(e) {
+			var x = e.pageX,
+				y = e.pageY;
 			if (e.targetTouches) {
 				x = e.targetTouches[0].pageX; //zepto
+				y = e.targetTouches[0].pageY;
 			} else if (e.originalEvent&&"ontouchend" in document) {
 				x = e.originalEvent.touches[0].pageX; //jquery
-			}
-			return x;
-		}
-		//position page x
-		function positionY(e) {
-			var y = e.pageY;
-			if (e.targetTouches) {
-				y = e.targetTouches[0].pageY; //zepto
-			} else if (e.originalEvent&&"ontouchend" in document) {
 				y = e.originalEvent.touches[0].pageY; //jquery
 			}
-			return y;
+			return {'x':x,'y':y};
+		}
+		//生成简单标识
+		if(init.nav){
+			var $nav = $(init.nav);
+			if(init.loop)var l =  size-2;
+			for(var i = 0; i < l;i++)
+			{
+				if(i ==0){
+					$nav.append('<a class=\'active\'></a>');
+				}else{
+					$nav.append('<a></a>');
+				}
+				
+			};
+			function shownav(i){
+				
+				$nav.find('a').eq(i).addClass('active').siblings('.active').removeClass('active');
+			
+			}
 		}
 		
+		/*扩展*/	
 	  //跳转到i幅图
-	  this.trigger= function(i){
+	  this.goto= function(i){
+	  	if(init.loop){
+	  		i++;
+	  	}
 	  	gotocell(i);
 	  }
 	  //左右轮播‘right’,为逆向
