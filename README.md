@@ -8,17 +8,17 @@
 </p>
 <h5>基础结构</h5>
 <code>
-	<div class ='banner'>
-		<ul>
-			<li><img /><li>
-		</ul>
-	</div>
+	&lt;div class =&#x27;banner&#x27;&gt;
+		&lt;ul&gt;
+			&lt;li&gt;&lt;img /&gt;&lt;li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
 </code>
 <h5>初始化</h5>
 <code>
-	<script>
+	&lt;script&gt;
 		var banner = new $.jqz_banner();
-	</script>
+	&lt;/script&gt;
 </code>
 <h5>参数：</h5>	
 <ol>
