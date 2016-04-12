@@ -82,8 +82,8 @@
 		}
 		//自动添加dom 无限循环用
 		if(init.loop){			
-			$list.append("<div class='"+init.cell+"'>"+$cell.eq(0).html()+"</div>");
-			$cell.eq(0).before("<div class='"+init.cell+"'>"+$cell.eq(size-1).html()+"</div>");
+			$list.append("<li class='"+init.cell+"'>"+$cell.eq(0).html()+"</li>");
+			$cell.eq(0).before("<li class='"+init.cell+"'>"+$cell.eq(size-1).html()+"</li>");
 			//刷新js的dom;
 			$cell = $obj.find('.'+init.cell);
 			size = $cell.size();
