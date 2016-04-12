@@ -2,10 +2,12 @@
 
 <p>基于jquery,zeptojs开发的支持手机端，pc端双端的轮播图片，支持窗口自适应，左右拖动，无限轮播，可扩展性</p>
 
-<p style = 'color:red'>核心css:<br/>
-.banner ul{ white-space: nowrap;font-size:0}<br/>
+<h5>核心css:</h5>
+<code>
+.banner{ overflow:hidden;position:relative;}
+.banner ul{ white-space: nowrap;font-size:0}
 .banner ul li{width: 100%;display:inline-block;font-size:1.4rem}
-</p>
+</code>
 <h5>基础结构</h5>
 <code>
 	&lt;div class =&#x27;banner&#x27;&gt;
